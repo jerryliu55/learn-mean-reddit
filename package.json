@@ -1,0 +1,23 @@
+{
+  "name": "learn-mean-reddit",
+  "version": "1.0.0",
+  "description": "learn mean stack by making a reddit clone",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerryliu55/learn-mean-reddit.git"
+  },
+  "author": "Jerry Liu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jerryliu55/learn-mean-reddit/issues"
+  },
+  "homepage": "https://github.com/jerryliu55/learn-mean-reddit#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mongodb": "^2.1.18"
+  }
+}
