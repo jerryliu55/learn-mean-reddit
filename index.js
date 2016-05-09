@@ -31,15 +31,23 @@ app.get("/hi", function(req, res) {
 
 app.post("/api/posts", function(req, res) {
   if ("user" in req.body && "title" in req.body) {
-    console.log("has user and title");
+    db.collection("posts").insertOne({
+      "user": req.body.user,
+      "title": req.body.title,
+      "body": req.body.body
+    }, function(err, docsInserted) {
+      console.log(docsInserted.insertedId);
+      // add link if exists
+      if ("link" in req.body) {
+        db.collection("posts").update({_id: docsInserted.insertedId}, {"link": req.body.link});
+      }
+    });
+
     res.json({"response": "all good"});
   } else {
     res.json({"response": "missing field"});
   }
-  // db.collection("posts").insertOne({
-  //   "user": req.body.user,
-  //   "title": req.body.title
-  // });
+
 });
 
 app.listen(3000, function() {
