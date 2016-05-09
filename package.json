@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jerryliu55/learn-mean-reddit#readme",
   "dependencies": {
+    "body-parser": "^1.15.1",
     "express": "^4.13.4",
     "mongodb": "^2.1.18"
   }
