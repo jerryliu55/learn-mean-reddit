@@ -1,10 +1,9 @@
-var restful = require("node-restful");
 var mongoose = require("mongoose");
 var Comment = require("./comment");
 
 var postSchema = new mongoose.Schema({
-  title: {type: String, required: true},
-  user: {type: String, required: true},
+  title: {type: String, required: true, default: ""},
+  user: {type: String, required: true, default: "joeshmoe"},
   body: {type: String, default: ""},
   link: {type: String, default: ""},
   upvotes: {type: Number, default: 1},
@@ -12,4 +11,4 @@ var postSchema = new mongoose.Schema({
   comments: {type: [Comment], default: []}
 });
 
-module.exports = restful.model("Post", postSchema);
+module.exports = mongoose.model("Post", postSchema);

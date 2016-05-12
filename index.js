@@ -22,14 +22,14 @@ app.use(bodyParser.json());
 
 
 
-// MongoClient.connect(mongoURL, function(err, _db) {
-mongoose.connect(mongoURL, function(err, db) {
+// MongoClient.connect(mongoURL, function(err, _db) { //// OLD
+mongoose.connect(mongoURL, function(err, _db) { //// NEW
   if (err) {
     console.log(err);
     throw err;
   } else {
     console.log("connected to mongodb at " + mongoURL);
-    // db = _db;
+    db = _db;
   }
 });
 
@@ -53,11 +53,24 @@ router.route("/posts")
 
     post.save(function(err) {
       if (err) {
+        console.log("error: " + err);
         res.status(500);
         res.json({"response": "error saving post"});
       } else {
         res.status(201);
         res.json(post);
+      }
+    });
+  })
+  .get(function(req, res) {
+    Post.find(function(err, posts) {
+      if (err) {
+        console.log("error: " + err);
+        res.status(404);
+        res.json({"response": "error getting posts"});
+      } else {
+        res.status(200);
+        res.json(posts);
       }
     });
   });
