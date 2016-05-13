@@ -1,4 +1,3 @@
-var restful = require("node-restful");
 var mongoose = require("mongoose");
 
 var userSchema = new mongoose.Schema({
@@ -7,4 +6,4 @@ var userSchema = new mongoose.Schema({
   password: {type: String, required: true}
 });
 
-module.exports = restful.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

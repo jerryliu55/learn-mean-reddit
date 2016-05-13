@@ -1,4 +1,3 @@
-var restful = require("node-restful");
 var mongoose = require("mongoose");
 
 var commentSchema = new mongoose.Schema({
@@ -11,4 +10,4 @@ commentSchema.add({
   comments: [commentSchema]
 });
 
-module.exports = restful.model("Comment", commentSchema);
+module.exports = mongoose.model("Comment", commentSchema);
