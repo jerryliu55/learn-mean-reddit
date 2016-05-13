@@ -58,7 +58,7 @@ router.route("/posts")
         res.json({"response": "error saving post"});
       } else {
         res.status(201);
-        res.json(post);
+        res.json({"acknowledged": true});
       }
     });
   })
@@ -74,6 +74,35 @@ router.route("/posts")
       }
     });
   });
+
+router.route("/posts/:post_id")
+  .get(function(req, res) {
+    Post.findById(req.params.post_id, function(err, post) {
+      if (err || post === null) {
+        console.log("error: " + err);
+        res.status(404);
+        res.json({"response": "error getting post with id: " + req.params.post_id});
+      } else {
+        res.status(200);
+        res.json(post);
+      }
+    });
+  })
+  .delete(function(req, res) {
+    Post.remove({
+      _id : req.params.post_id
+    }, function(err) {
+      if (err) {
+        console.log("error: " + err);
+        res.status(404);
+        res.json({"response": "error deleting post with id: " + req.params.post_id});
+      } else {
+        res.status(200);
+        res.json({"deleted": true});
+      }
+    });
+  });
+
 
 app.use("/api", router);
 
