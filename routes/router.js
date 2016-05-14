@@ -52,10 +52,13 @@ router.route("/posts")
 router.route("/posts/:post_id")
   .get(function(req, res) {
     Post.findById(req.params.post_id, function(err, post) {
-      if (err || (post === null)) {
+      if (err) {
         console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error retrieving"});
+      } else if (post === null) {
         res.status(404);
-        res.json({"response": "error getting post with id: " + req.params.post_id});
+        res.json({"response": "post not found"});
       } else {
         res.status(200);
         res.json(post);
@@ -65,11 +68,14 @@ router.route("/posts/:post_id")
   .delete(function(req, res) {
     Post.remove({
       _id : req.params.post_id
-    }, function(err) {
+    }, function(err, removed) {
       if (err) {
         console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error deleting"});
+      } else if (removed.result.n === 0) {
         res.status(404);
-        res.json({"response": "error deleting post with id: " + req.params.post_id});
+        res.json({"response": "post not found"});
       } else {
         res.status(200);
         res.json({"deleted": true});
@@ -112,8 +118,11 @@ router.route("/users/:user_id")
     User.findById(req.params.user_id, function(err, user) {
       if (err || (user === null)) {
         console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error retrieving"});
+      } else if (user === null) {
         res.status(404);
-        res.json({"response": "error getting user with id: " + req.params.user_id});
+        res.json({"response": "user not found"});
       } else {
         res.status(200);
         res.json(user);
@@ -123,11 +132,14 @@ router.route("/users/:user_id")
   .delete(function(req, res) {
     User.remove({
       _id : req.params.user_id
-    }, function(err) {
+    }, function(err, removed) {
       if (err) {
         console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error deleting"});
+      } else if (removed.result.n === 0) {
         res.status(404);
-        res.json({"response": "error deleting user with id: " + req.params.post_id});
+        res.json({"response": "user not found"});
       } else {
         res.status(200);
         res.json({"deleted": true});
