@@ -8,7 +8,8 @@ var postSchema = new mongoose.Schema({
   link: {type: String, default: ""},
   upvotes: {type: Number, default: 1},
   downvotes: {type: Number, default: 0},
-  comments: {type: [Comment], default: []}
+  comments: {type: [Comment], default: []},
+  date_created: {type: Date, default: Date.now}
 });
 
 module.exports = mongoose.model("Post", postSchema);
