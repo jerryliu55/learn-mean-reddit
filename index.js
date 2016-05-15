@@ -2,19 +2,16 @@ var express = require("express");
 var bodyParser = require("body-parser");
 // var mongo = require("mongodb");
 var mongoose = require("mongoose");
-var user = require("./models/user");
+var router = require("./routes/router");
+
 
 // var MongoClient = mongo.MongoClient;
 var mongoURL = "mongodb://localhost:27017/reddit";
 var db = null;
 
-// models
-var Post = require("./models/post");
-var User = require("./models/user");
-var Comment = require("./models/comment");
+
 
 // initialization
-var router = express.Router();
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -33,75 +30,7 @@ mongoose.connect(mongoURL, function(err, _db) { //// NEW
   }
 });
 
-// router
-router.use(function(req, res, next) {
-  console.log("router initialized with function");
-  next();
-});
 
-router.get("/", function(req, res) {
-  res.json({"response": "test works"});
-});
-
-router.route("/posts")
-  .post(function(req, res) {
-    var post = new Post();
-    post.title = req.body.title;
-    post.user = req.body.user;
-    post.body = req.body.body;
-    post.link = req.body.link;
-
-    post.save(function(err) {
-      if (err) {
-        console.log("error: " + err);
-        res.status(500);
-        res.json({"response": "error saving post"});
-      } else {
-        res.status(201);
-        res.json({"acknowledged": true});
-      }
-    });
-  })
-  .get(function(req, res) {
-    Post.find(function(err, posts) {
-      if (err) {
-        console.log("error: " + err);
-        res.status(404);
-        res.json({"response": "error getting posts"});
-      } else {
-        res.status(200);
-        res.json(posts);
-      }
-    });
-  });
-
-router.route("/posts/:post_id")
-  .get(function(req, res) {
-    Post.findById(req.params.post_id, function(err, post) {
-      if (err || post === null) {
-        console.log("error: " + err);
-        res.status(404);
-        res.json({"response": "error getting post with id: " + req.params.post_id});
-      } else {
-        res.status(200);
-        res.json(post);
-      }
-    });
-  })
-  .delete(function(req, res) {
-    Post.remove({
-      _id : req.params.post_id
-    }, function(err) {
-      if (err) {
-        console.log("error: " + err);
-        res.status(404);
-        res.json({"response": "error deleting post with id: " + req.params.post_id});
-      } else {
-        res.status(200);
-        res.json({"deleted": true});
-      }
-    });
-  });
 
 
 app.use("/api", router);
