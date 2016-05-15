@@ -147,4 +147,30 @@ router.route("/users/:user_id")
     });
   });
 
+router.route("/users/:_user/posts")
+  .get(function(req, res) {
+    User.findOne({name: req.params._user}, function(err, user) {
+      console.log(user);
+      if (err) {
+        console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error finding user"});
+      } else if (user === null) {
+        console.log("error: not found");
+        res.status(404);
+        res.json({"response": "user not found"});
+      }
+    });
+    Post.find({user: req.params._user}, function(err, posts) {
+      if (err) {
+        console.log("error " + err);
+        res.status(500);
+        res.json({"response": "error getting posts for user"});
+      } else {
+        res.status(200);
+        res.json(posts);
+      }
+    });
+  });
+
 module.exports = router;
