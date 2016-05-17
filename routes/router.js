@@ -21,7 +21,7 @@ router.route("/posts")
   .post(function(req, res) {
     var post = new Post();
     post.title = req.body.title;
-    post.user = req.body.user;
+    post.user_id = req.body.user_id;
     post.body = req.body.body;
     post.link = req.body.link;
 
@@ -147,9 +147,9 @@ router.route("/users/:user_id")
     });
   });
 
-router.route("/users/:_user/posts")
+router.route("/users/:user_id/posts")
   .get(function(req, res) {
-    User.findOne({name: req.params._user}, function(err, user) {
+    User.findById(req.params.user_id, function(err, user) {
       console.log(user);
       if (err) {
         console.log("error: " + err);
@@ -161,7 +161,7 @@ router.route("/users/:_user/posts")
         res.json({"response": "user not found"});
       }
     });
-    Post.find({user: req.params._user}, function(err, posts) {
+    Post.find({user_id: req.params.user_id}, function(err, posts) {
       if (err) {
         console.log("error " + err);
         res.status(500);
@@ -171,6 +171,48 @@ router.route("/users/:_user/posts")
         res.json(posts);
       }
     });
+  });
+
+// Routes for comments
+router.route("/posts/:post_id/comments")
+  .get(function(req, res) {
+    Post.findById(req.params.post_id, function(err, post) {
+      // error checking
+      if (err) {
+        console.log("error: " + err);
+        res.status(500);
+        res.json({"response": "error retrieving post"});
+      } else if (post === null) {
+        res.status(404);
+        res.json({"response": "post not found"});
+      }
+
+      // no errors
+      res.json(post.comments);
+    });
+  })
+  .post(function(req, res) {
+    var comment = new Comment();
+    comment.user_id = req.body.user_id;
+    comment.body = req.body.body;
+
+    Post.findByIdAndUpdate(
+      req.params.post_id,
+      {$push: {comments: comment}},
+      {safe: true, upsert: true},
+      function(err, model) {
+        // error checking
+        if (err) {
+          console.log("error: " + err);
+          res.status(500);
+          res.json({"response": "error retrieving post"});
+        } else if (post === null) {
+          res.status(404);
+          res.json({"response": "post not found"});
+        }
+        // no errors
+        res.json({"acknowledged": true});
+      });
   });
 
 module.exports = router;
