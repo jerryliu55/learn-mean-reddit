@@ -3,7 +3,7 @@ var Comment = require("./comment");
 
 var postSchema = new mongoose.Schema({
   title: {type: String, required: true, default: ""},
-  user: {type: String, required: true, default: "joeshmoe"},
+  user_id: {type: String, required: true, default: "joeshmoe"},
   body: {type: String, default: ""},
   link: {type: String, default: ""},
   upvotes: {type: Number, default: 1},
