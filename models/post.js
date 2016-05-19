@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-var Comment = require("./comment");
+var Comment = require("./comment").schema;
 
 var postSchema = new mongoose.Schema({
   title: {type: String, required: true, default: ""},

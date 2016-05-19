@@ -203,15 +203,13 @@ router.route("/posts/:post_id/comments")
       function(err, model) {
         // error checking
         if (err) {
-          console.log("error: " + err);
+          console.log("error posting comment: " + err);
           res.status(500);
           res.json({"response": "error retrieving post"});
-        } else if (post === null) {
-          res.status(404);
-          res.json({"response": "post not found"});
+        } else {
+          // no errors
+          res.json({"acknowledged": true});
         }
-        // no errors
-        res.json({"acknowledged": true});
       });
   });
 
