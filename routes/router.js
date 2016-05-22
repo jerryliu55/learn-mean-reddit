@@ -187,6 +187,30 @@ router.route("/comments")
     });
   });
 
+router.route("/comments/:comment_id")
+  .post(function(req, res) {
+    var comment = new Comment();
+    comment.user_id = req.body.user_id;
+    comment.body = req.body.body;
+
+    // add comment to the post
+    Comment.findByIdAndUpdate(
+      req.params.comment_id,
+      {$push: {comments: comment}},
+      {safe: true, upsert: true},
+      function(err, model) {
+        // error checking
+        if (err) {
+          console.log("error posting comment to comment: " + err);
+          res.status(500);
+          res.json({"response": "error posting comment"});
+        } else {
+          // no errors
+          res.status(201).json(model);
+        }
+      });
+  });
+
 // Routes for comments
 router.route("/posts/:post_id/comments")
   .get(function(req, res) {
@@ -210,6 +234,7 @@ router.route("/posts/:post_id/comments")
     comment.user_id = req.body.user_id;
     comment.body = req.body.body;
 
+    // add comment to the post
     Post.findByIdAndUpdate(
       req.params.post_id,
       {$push: {comments: comment}},
@@ -219,13 +244,14 @@ router.route("/posts/:post_id/comments")
         if (err) {
           console.log("error posting comment: " + err);
           res.status(500);
-          res.json({"response": "error retrieving post"});
+          res.json({"response": "error posting comment"});
         } else {
           // no errors
           res.json({"acknowledged": true});
         }
       });
 
+    // add comment to comments db
     comment.save(function(err) {
       if (err) {
         console.log("error: " + err);
@@ -236,46 +262,6 @@ router.route("/posts/:post_id/comments")
         res.json({"acknowledged": true});
       }
     });
-  });
-
-// Routes for embedded comments
-router.route("/posts/:post_id/comments/:comment_id")
-  // .get(function(req, res) {
-  //   Post.findById(req.params.post_id, function(err, post) {
-  //     // error checking
-  //     if (err) {
-  //       console.log("error: " + err);
-  //       res.status(500);
-  //       res.json({"response": "error retrieving post"});
-  //     } else if (post === null) {
-  //       res.status(404);
-  //       res.json({"response": "post not found"});
-  //     }
-  //
-  //     // no errors
-  //     res.json(post.comments);
-  //   });
-  // })
-  .post(function(req, res) {
-    var comment = new Comment();
-    comment.user_id = req.body.user_id;
-    comment.body = req.body.body;
-
-    Post.findByIdAndUpdate(
-      req.params.post_id,
-      {$push: {comments: comment}},
-      {safe: true, upsert: true},
-      function(err, model) {
-        // error checking
-        if (err) {
-          console.log("error posting comment: " + err);
-          res.status(500);
-          res.json({"response": "error retrieving post"});
-        } else {
-          // no errors
-          res.json({"acknowledged": true});
-        }
-      });
   });
 
 module.exports = router;
