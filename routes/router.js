@@ -187,31 +187,58 @@ router.route("/comments")
     });
   });
 
-router.route("/comments/:comment_id")
+router.route("/comments/:comment_id/comments")
+  .get(function(req, res) {
+    Comment.findById(req.params.comment_id, function(err, comment) {
+      if (err) {
+        console.log("error: " + err);
+        res.status(404);
+        res.json({"retrieved": false});
+      } else {
+        Comment.find({'_id': {$in: comment.comments}}, function(err, comments) {
+          if (err) {
+            console.log("error: " + err);
+            res.status(500).json({"error": "error getting comments of post"});
+          } else {
+            res.status(200).json(comments);
+          }
+        });
+      }
+    });
+  })
   .post(function(req, res) {
     var comment = new Comment();
     comment.user_id = req.body.user_id;
     comment.body = req.body.body;
 
-    // add comment to the post
-    Comment.findByIdAndUpdate(
-      req.params.comment_id,
-      {$push: {comments: comment}},
-      {safe: true, upsert: true},
-      function(err, model) {
-        // error checking
-        if (err) {
-          console.log("error posting comment to comment: " + err);
-          res.status(500);
-          res.json({"response": "error posting comment"});
-        } else {
-          // no errors
-          res.status(201).json(model);
-        }
-      });
+    // add comment to comments db
+    comment.save(function(err, model) {
+      if (err) {
+        console.log("error: " + err);
+        res.status(500);
+        res.json({"created": false});
+      } else {
+        // add comment to the post
+        Comment.findByIdAndUpdate(
+          req.params.comment_id,
+          {$push: {comments: model._id}},
+          {safe: true, upsert: true},
+          function(err, model) {
+            // error checking
+            if (err) {
+              console.log("error posting comment to comment: " + err);
+              res.status(500);
+              res.json({"response": "error posting comment"});
+            } else {
+              // no errors
+              res.status(201).json({"acknowledged": "true"});
+            }
+          });
+      }
+    });
   });
 
-// Routes for comments
+// Routes for comments to a post
 router.route("/posts/:post_id/comments")
   .get(function(req, res) {
     Post.findById(req.params.post_id, function(err, post) {
@@ -223,10 +250,16 @@ router.route("/posts/:post_id/comments")
       } else if (post === null) {
         res.status(404);
         res.json({"response": "post not found"});
+      } else {
+        Comment.find({'_id': {$in: post.comments}}, function(err, comments) {
+          if (err) {
+            console.log("error: " + err);
+            res.status(500).json({"error": "error getting comments of post"});
+          } else {
+            res.status(200).json(comments);
+          }
+        });
       }
-
-      // no errors
-      res.json(post.comments);
     });
   })
   .post(function(req, res) {
@@ -234,32 +267,29 @@ router.route("/posts/:post_id/comments")
     comment.user_id = req.body.user_id;
     comment.body = req.body.body;
 
-    // add comment to the post
-    Post.findByIdAndUpdate(
-      req.params.post_id,
-      {$push: {comments: comment}},
-      {safe: true, upsert: true},
-      function(err, model) {
-        // error checking
-        if (err) {
-          console.log("error posting comment: " + err);
-          res.status(500);
-          res.json({"response": "error posting comment"});
-        } else {
-          // no errors
-          res.json({"acknowledged": true});
-        }
-      });
-
     // add comment to comments db
-    comment.save(function(err) {
+    comment.save(function(err, model) {
       if (err) {
         console.log("error: " + err);
         res.status(500);
         res.json({"created": "false"});
       } else {
-        res.status(201);
-        res.json({"acknowledged": true});
+        // add comment to the post
+        Post.findByIdAndUpdate(
+          req.params.post_id,
+          {$push: {comments: model._id}},
+          {safe: true, upsert: true},
+          function(err, model) {
+            // error checking
+            if (err) {
+              console.log("error posting comment: " + err);
+              res.status(500);
+              res.json({"response": "error posting comment"});
+            } else {
+              // no errors
+              res.json({"acknowledged": true});
+            }
+          });
       }
     });
   });
