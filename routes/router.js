@@ -90,16 +90,27 @@ router.route("/users")
     user.name = req.body.name;
     user.password = req.body.password; // of course this will need a more secure implementation
 
-    user.save(function(err) {
-      if (err) {
+    // check if username exists
+    User.find({"name": req.body.name}, function(err, _user) {
+      if (_user === null) {
+        user.save(function(err) {
+          if (err) {
+            console.log("error: " + err);
+            res.status(500);
+            res.json({"created": false});
+          } else {
+            res.status(201);
+            res.json({"acknowledged": true});
+          }
+        });
+      } else {
         console.log("error: " + err);
         res.status(500);
-        res.json({"created": false});
-      } else {
-        res.status(201);
-        res.json({"acknowledged": true});
+        res.json({"error": "username already exists"});
       }
     });
+
+
   })
   .get(function(req, res) {
     User.find(function(err, users) {
