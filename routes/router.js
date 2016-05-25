@@ -8,7 +8,6 @@ var Comment = require("../models/comment");
 
 // router
 router.use(function(req, res, next) {
-  console.log("router initialized with function");
   next();
 });
 
@@ -203,17 +202,23 @@ router.route("/comments/:comment_id/comments")
     Comment.findById(req.params.comment_id, function(err, comment) {
       if (err) {
         console.log("error: " + err);
-        res.status(404);
+        res.status(500);
         res.json({"retrieved": false});
+      } else if (comment === null) {
+        res.status(404).json({"error": "comment not found"});
       } else {
-        Comment.find({'_id': {$in: comment.comments}}, function(err, comments) {
-          if (err) {
-            console.log("error: " + err);
-            res.status(500).json({"error": "error getting comments of post"});
-          } else {
-            res.status(200).json(comments);
-          }
-        });
+        if (comment.comments.length !== 0) {
+          Comment.find({'_id': {$in: comment.comments}}, function(err, comments) {
+            if (err) {
+              console.log("error: " + err);
+              res.status(500).json({"error": "error getting comments of post"});
+            } else {
+              res.status(200).json(comments);
+            }
+          });
+        } else {
+          res.status(200).json([]);
+        }
       }
     });
   })
