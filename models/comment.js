@@ -5,11 +5,8 @@ var commentSchema = new mongoose.Schema({
   date_created: {type: Date, default: Date.now},
   body: {type: String, required: true, defualt: ""},
   upvotes: {type: Number, default: 1},
-  downvotes: {type: Number, default: 0}
-});
-
-commentSchema.add({
-  comments: [commentSchema]
+  downvotes: {type: Number, default: 0},
+  comments: {type: [String], default: []}
 });
 
 module.exports = mongoose.model("Comment", commentSchema);
